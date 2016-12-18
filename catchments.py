@@ -51,7 +51,7 @@ def main():
         if options.transport not in ['pedestrian', 'car']:
             parser.error('Invalid units type [\'pedestrian\', \'car\']')
     
-    print """Catchments params:\n
+    print """\033[94mCatchments params:\033[0m\n
         api: {}\n
         key: {}\n
         points: {}\n
@@ -62,33 +62,33 @@ def main():
                 options.units, options.transport)
 
     # Read center points from file
-    print 'Loading file with input points...'
+    print '\033[94mLoading file with input points...\033[0m'
     center_points = read_file(options.file)
-    print 'Successful'
+    print '\033[92mSuccessful\033[0m'
     # Get catchments (SKOBBLER or HERE) 
     if options.api == 'SKOBBLER':
-        print 'Requesting catchments from SKOBBLER API...'
+        print '\033[94mRequesting catchments from SKOBBLER API...\033[0m'
         catchments = get_skobbler_catchments(center_points, options)
-        print 'Successful'
-        print 'Processing catchments to GeoJSON format...'
+        print '\033[92mSuccessful\033[0m'
+        print '\033[94mProcessing catchments to GeoJSON format...\033[0m'
         geojson_features = skobbler_catchments_to_geojson(catchments)
-        print 'Successful'
-        print 'Saving to files...'
+        print '\033[92mSuccessful\033[0m'
+        print '\033[94mSaving to files...\033[0m'
         for feature in geojson_features:
             file_name = save_as_geojson(feature, options)
             print 'File \033[92m{}\033[0m has been created.'.format(file_name)
-        print '{} files successfully created'.format(len(geojson_features))
+        print '\033[1m\033[93m{} files successfully created\033[0m'.format(len(geojson_features))
     else:
-        print 'Requesting catchments from HERE API...'
+        print '\033[94mRequesting catchments from HERE API...\033[0m'
         catchments = get_here_catchments(center_points, options)
-        print 'Successful'
-        print 'Processing catchments to GeoJSON format...'
+        print '\033[92mSuccessful\033[0m'
+        print '\033[94mProcessing catchments to GeoJSON format...\033[0m'
         geojson_features = here_catchments_to_geojson(catchments)
-        print 'Successful'
+        print '\033[92mSuccessful\033[0m'
         for feature in geojson_features:
             file_name = save_as_geojson(feature, options)
             print 'File \033[92m{}\033[0m has been created.'.format(file_name)
-        print '{} files successfully created'.format(len(geojson_features))
+        print '\033[1m\033[93m{} files successfully created\033[0m'.format(len(geojson_features))
     return True
     
 
