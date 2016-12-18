@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from optparse import OptionParser
+import os.path
+import csv
 
 
 def main():
@@ -23,9 +25,20 @@ def main():
         parser.error('Transport type is required [\'pedestrian\', \'bike\', \'car\']')
     if options.transport not in ['pedestrian', 'bike', 'car']:
         parser.error('Invalid units type [\'pedestrian\', \'bike\', \'car\']')
+    if not options.file:
+        parser.error('File is required (.csv with \',\' as delimiter)')
+    if not os.path.isfile(options.file):
+        parser.error('File doesn\'t exist.')
     
-    print options
-    print args
+    print(options)
+    print(args)
+
+
+def read_file(file_path):
+    with open(file_path) as csv_file:
+        dialect = csv.Sniffer().sniff(csv_file.read(), delimiters=';,')
+        csv_file.seek(0)
+        return [row for row in csv.DictReader(csv_file, dialect=dialect)]
 
          
 if __name__ == '__main__':
