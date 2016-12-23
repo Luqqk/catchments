@@ -15,7 +15,7 @@ def main():
     parser.add_option('-k', '--key', type='string', help='')
     parser.add_option('-f', '--file', type='string', help='')
     # Optional parameters
-    parser.add_option('-r', '--range', type='int', default=300, help='')
+    parser.add_option('-r', '--range', type='int', default=600, help='')
     parser.add_option('-u', '--units', type='string', default='sec', help='')
     parser.add_option('-t', '--transport', type='string', default='car', help='')
     
@@ -62,112 +62,93 @@ def main():
                 options.units, options.transport)
 
     # Read center points from file
-    print '\033[94mLoading file with input points...\033[0m'
+    print 'Loading file with input points...'
     center_points = read_file(options.file)
-    print '\033[92mSuccessful\033[0m'
+    print 'Successful'
     # Get catchments (SKOBBLER or HERE) 
     if options.api == 'SKOBBLER':
-        print '\033[94mRequesting catchments from SKOBBLER API...\033[0m'
-        catchments = get_skobbler_catchments(center_points, options)
-        print '\033[92mSuccessful\033[0m'
-        print '\033[94mProcessing catchments to GeoJSON format...\033[0m'
-        geojson_features = skobbler_catchments_to_geojson(catchments)
-        print '\033[92mSuccessful\033[0m'
-        print '\033[94mSaving to files...\033[0m'
-        for feature in geojson_features:
-            file_name = save_as_geojson(feature, options)
-            print 'File \033[92m{}\033[0m has been created.'.format(file_name)
-        print '\033[1m\033[93m{} files successfully created\033[0m'.format(len(geojson_features))
+        print 'Requesting catchments from SKOBBLER API...'
+        for point in center_points:
+            catchment = get_skobbler_catchment(point, options)
+            geojson_feature = skobbler_catchment_to_geojson(catchment)
+            file_name = save_as_geojson(geojson_feature, options)
+            print '{} file successfully created'.format(file_name)
     else:
-        print '\033[94mRequesting catchments from HERE API...\033[0m'
-        catchments = get_here_catchments(center_points, options)
-        print '\033[92mSuccessful\033[0m'
-        print '\033[94mProcessing catchments to GeoJSON format...\033[0m'
-        geojson_features = here_catchments_to_geojson(catchments)
-        print '\033[92mSuccessful\033[0m'
-        for feature in geojson_features:
+        print 'Requesting catchments from HERE API...'
+        for point in center_points:
+            catchment = get_here_catchment(point, options)
+            geojson_feature = here_catchment_to_geojson(catchment)
             file_name = save_as_geojson(feature, options)
-            print 'File \033[92m{}\033[0m has been created.'.format(file_name)
-        print '\033[1m\033[93m{} files successfully created\033[0m'.format(len(geojson_features))
+            print '{} file successfully created'.format(file_name)
+    # Close input file
+    center_points.close()
     return True
     
 
 def read_file(file_path):
-    with open(file_path) as csv_file:
+        csv_file = open(file_path)
         dialect = csv.Sniffer().sniff(csv_file.read(), delimiters=';,')
         csv_file.seek(0)
-        return [row for row in csv.DictReader(csv_file, dialect=dialect)]
+        return csv.DictReader(csv_file, dialect=dialect)
 
 
-def get_skobbler_catchments(points, options):
+def get_skobbler_catchment(point, options):
     url = 'http://{0}.tor.skobbler.net/tor/RSngx/RealReach/json/20_5/en/{0}'\
         .format(options.key, options.key)
-    catchments = []
-    for point in points:
-        params = {'start': '{1},{0}'.format(point['x'], point['y']),
-                  'transport': options.transport,
-                  'range': options.range,
-                  'units': options.units,
-                  'toll': 1,
-                  'highways': 1,
-                  'nonReachable': 0,
-                  'response_type': 'gps'}
-        r = requests.get(url, params=params)
-        catchment = json.loads(r.text)
-        catchment['name'] = point['name']
-        catchments.append(catchment)
-    return catchments
+    params = {'start': '{1},{0}'.format(point['x'], point['y']),
+              'transport': options.transport,
+              'range': options.range,
+              'units': options.units,
+              'toll': 1,
+              'highways': 1,
+              'nonReachable': 0,
+              'response_type': 'gps'}
+    r = requests.get(url, params=params)
+    catchment = json.loads(r.text)
+    catchment['name'] = point['name']
+    return catchment
 
-def skobbler_catchments_to_geojson(catchments):
-    geojson_features = []
-    for catchment in catchments:
-        geojson_feature = {"type": "Feature", "geometry": {
-                       "type": "Polygon", "coordinates": [[]]},
-                       "properties": {"name": catchment['name']}}
-        coords = iter(catchment['realReach']['gpsPoints'][8:])
-        for coord in coords:
-            geojson_feature['geometry']['coordinates'][0].append([coord, next(coords)])
-        geojson_feature['geometry']['coordinates'][0].append(
-            [catchment['realReach']['gpsPoints'][8:][0],
-            catchment['realReach']['gpsPoints'][8:][1]])
-        geojson_features.append(geojson_feature)
-    return geojson_features
+def skobbler_catchment_to_geojson(catchment):
+    geojson_feature = {"type": "Feature", "geometry": {
+                    "type": "Polygon", "coordinates": [[]]},
+                    "properties": {"name": catchment['name']}}
+    coords = iter(catchment['realReach']['gpsPoints'][8:])
+    for coord in coords:
+        geojson_feature['geometry']['coordinates'][0].append([coord, next(coords)])
+    geojson_feature['geometry']['coordinates'][0].append(
+        [catchment['realReach']['gpsPoints'][8:][0],
+        catchment['realReach']['gpsPoints'][8:][1]])
+    return geojson_feature
 
 
-def get_here_catchments(points, options):
+def get_here_catchments(point, options):
     url = 'https://isoline.route.cit.api.here.com/routing/7.2/calculateisoline.json'
-    catchments = []
-    for point in points:
-        params = {'start': 'geo!{1},{0}'.format(point['x'], point['y']),
-                  'mode': 'fastest;{};traffic:enabled'.format(options.transport),
-                  'range': options.range,
-                  'rangetype': options.units,
-                  'app_id': options.app_id,
-                  'app_code': options.app_code}
-        r = requests.get(url, params=params)
-        catchment = json.loads(r.text)
-        catchment['name'] = point['name']
-        catchments.append(catchment)
-    return catchments
+    params = {'start': 'geo!{1},{0}'.format(point['x'], point['y']),
+              'mode': 'fastest;{};traffic:enabled'.format(options.transport),
+              'range': options.range,
+              'rangetype': options.units,
+              'app_id': options.app_id,
+              'app_code': options.app_code}
+    r = requests.get(url, params=params)
+    catchment = json.loads(r.text)
+    catchment['name'] = point['name']
+    return catchment
 
 
-def here_catchments_to_geojson(catchments):
-    geojson_features = []
-    for catchment in catchments:
-        geojson_feature = {"type": "Feature",
-                        "geometry": {"type": "Polygon", "coordinates": [[]]},
-                        "properties": {"name": catchment['name']}}
-        crds = []
-        for row in catchment['response']['isoline'][0]['component'][0]['shape']:
-            splt = row.split(',')
-            crds.append(float(splt[1]))
-            crds.append(float(splt[0]))
-        coords = iter(crds)
-        for coord in coords:
-            geojson_feature['geometry']['coordinates'][0].append([coord, next(coords)])
-        geojson_feature['geometry']['coordinates'][0].append([crds[0], crds[1]])
-        geojson_features.append(geojson_feature)
-    return geojson_features
+def here_catchment_to_geojson(catchment):
+    geojson_feature = {"type": "Feature",
+                    "geometry": {"type": "Polygon", "coordinates": [[]]},
+                    "properties": {"name": catchment['name']}}
+    crds = []
+    for row in catchment['response']['isoline'][0]['component'][0]['shape']:
+        splt = row.split(',')
+        crds.append(float(splt[1]))
+        crds.append(float(splt[0]))
+    coords = iter(crds)
+    for coord in coords:
+        geojson_feature['geometry']['coordinates'][0].append([coord, next(coords)])
+    geojson_feature['geometry']['coordinates'][0].append([crds[0], crds[1]])
+    return geojson_feature
 
 
 def save_as_geojson(feature, options):
