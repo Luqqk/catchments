@@ -51,19 +51,14 @@ def main():
         if options.transport not in ['pedestrian', 'car']:
             parser.error('Invalid units type [\'pedestrian\', \'car\']')
     
-    print """\033[94mCatchments params:\033[0m\n
-        api: {}\n
-        key: {}\n
-        points: {}\n
-        range: {}\n
-        units: {}\n
-        transport: {}\n"""\
-        .format(options.api, options.key, options.file, options.range,\
+    print """Catchments params:\n\napi: {}\nkey: {}\npoints: {}\nrange: {}\nunits: {}\ntransport: {}\n"""\
+        .format(options.api, options.key, options.file, options.range,
                 options.units, options.transport)
 
     # Read center points from file
     print 'Loading file with input points...'
-    center_points = read_file(options.file)
+    input_file = open(options.file)
+    center_points = create_dict_reader(input_file)
     print 'Successful'
     # Get catchments (SKOBBLER or HERE) 
     if options.api == 'SKOBBLER':
@@ -81,15 +76,14 @@ def main():
             file_name = save_as_geojson(feature, options)
             print '{} file successfully created'.format(file_name)
     # Close input file
-    center_points.close()
+    input_file.close()
     return True
     
 
-def read_file(file_path):
-        csv_file = open(file_path)
-        dialect = csv.Sniffer().sniff(csv_file.read(), delimiters=';,')
-        csv_file.seek(0)
-        return csv.DictReader(csv_file, dialect=dialect)
+def create_dict_reader(file):
+        dialect = csv.Sniffer().sniff(file.read(), delimiters=';,')
+        file.seek(0)
+        return csv.DictReader(file, dialect=dialect)
 
 
 def get_skobbler_catchment(point, options):
