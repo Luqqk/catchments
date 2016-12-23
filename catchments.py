@@ -18,6 +18,7 @@ def main():
     parser.add_option('-r', '--range', type='int', default=600, help='')
     parser.add_option('-u', '--units', type='string', default='sec', help='')
     parser.add_option('-t', '--transport', type='string', default='car', help='')
+    parser.add_option('-s', '--status', type='string', default='enabled', help='')
     
     (options, args) = parser.parse_args()
 
@@ -50,10 +51,12 @@ def main():
             parser.error('Invalid units type [\'time\', \'distance\']')
         if options.transport not in ['pedestrian', 'car']:
             parser.error('Invalid units type [\'pedestrian\', \'car\']')
+        if options.status not in ['enabled', 'disabled']:
+            parser.error('Invalid traffic input [\'enabled\', \'disabled\']')
     
-    print """Catchments params:\n\napi: {}\nkey: {}\npoints: {}\nrange: {}\nunits: {}\ntransport: {}\n"""\
+    print """Catchments params:\n\napi: {}\nkey: {}\npoints: {}\nrange: {}\nunits: {}\ntransport: {}\ntraffic status: {} (only for HERE)\n"""\
         .format(options.api, options.key, options.file, options.range,
-                options.units, options.transport)
+                options.units, options.transport, options.status)
 
     # Read center points from file
     print 'Loading file with input points...'
@@ -73,7 +76,7 @@ def main():
         for point in center_points:
             catchment = get_here_catchment(point, options)
             geojson_feature = here_catchment_to_geojson(catchment)
-            file_name = save_as_geojson(feature, options)
+            file_name = save_as_geojson(geojson_feature, options)
             print '{} file successfully created'.format(file_name)
     # Close input file
     input_file.close()
@@ -115,10 +118,10 @@ def skobbler_catchment_to_geojson(catchment):
     return geojson_feature
 
 
-def get_here_catchments(point, options):
+def get_here_catchment(point, options):
     url = 'https://isoline.route.cit.api.here.com/routing/7.2/calculateisoline.json'
     params = {'start': 'geo!{1},{0}'.format(point['x'], point['y']),
-              'mode': 'fastest;{};traffic:enabled'.format(options.transport),
+              'mode': 'fastest;{};traffic:{}'.format(options.transport, options.status),
               'range': options.range,
               'rangetype': options.units,
               'app_id': options.app_id,
