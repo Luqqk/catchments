@@ -54,7 +54,14 @@ def main():
         if options.status not in ['enabled', 'disabled']:
             parser.error('Invalid traffic input [\'enabled\', \'disabled\']')
     
-    print """Catchments params:\n\napi: {}\nkey: {}\npoints: {}\nrange: {}\nunits: {}\ntransport: {}\ntraffic status: {} (only for HERE)\n"""\
+    print """Catchments params:\n
+            api: {}
+            key: {}
+            points: {}
+            range: {}
+            units: {}
+            transport: {}
+            traffic status: {} (only for HERE)\n"""\
         .format(options.api, options.key, options.file, options.range,
                 options.units, options.transport, options.status)
 
