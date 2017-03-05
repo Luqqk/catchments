@@ -2,10 +2,29 @@ import os
 import json
 import requests
 from functools import wraps
-from datetime import datetime
+from optparse import OptionParser
 
 
 def validate_required_params(*params):
+    """Validates function required parameters.
+
+    Args:
+        *params: key name (string) which has to be included in parameters
+    
+    Returns:
+        decorated function if success
+
+    Raises:
+        ValueError if required param is not supplied
+
+    Examples:
+        Check if 'api' key exists in function parameters.
+        
+        >>>@validate_required_params('api')
+        >>>function_to_validate(api='example'):
+               return True
+
+    """
     
     def func_decorator(func):
         
@@ -27,6 +46,29 @@ def validate_required_params(*params):
 
 @validate_required_params('api', 'key')
 def request_catchment(point, **params):
+    """Requests catchment from chosen API provider.
+
+    Args:
+        point (dictionary): {'name': 'place', 'lon': 50.0, 'lat': 20.0}
+            'name' key is optional, 'lon' and 'lat' are required
+        **params: [
+                api (required), key (required), transport, range,
+                units, toll, highways, non_reachable, traffic
+            ]
+            If optional params won't be supplied, default values will be used
+    
+    Returns:
+        dictionary: api response if successful, False otherwise
+
+    Raises:
+        ValueError if required param is not supplied
+
+    Examples:
+        Get catchment from SKOBBLER API for specified point.
+
+        >>>catchment = request_catchment({'lon': 50.0, 'lat': 20.0}, api='SKOBBLER', key='api_key')
+
+    """
 
     req_params = {}
 
@@ -94,6 +136,25 @@ def request_catchment(point, **params):
 
 @validate_required_params('api')
 def catchment_as_geojson(catchment, **params):
+    """Processing catchment to GeoJSON format.
+
+    Args:
+        catchment (dictionary): output from request_catchment function
+        **params: [api (required)]
+    
+    Returns:
+        dictionary: GeoJSON polygon feature
+
+    Raises:
+        ValueError if required param is not supplied or non supported
+            API provider has been chosen
+
+    Examples:
+        Process catchment to GeoJSON.
+
+        >>>geojson = catchment_as_geojson(valid_catchment_object, api='SKOBBLER')
+
+    """
     
     geojson_feature = {
         "type": "Feature",
@@ -146,6 +207,25 @@ def catchment_as_geojson(catchment, **params):
 
 @validate_required_params('api')
 def save_as_geojson(geo_feature, **params):
+    """Save GeoJSON feature to *.geojson file
+
+    Args:
+        geo_feature (dictionary): valid GeoJSON feature object
+        **params: [api (required)]
+    
+    Returns:
+        file: GeoJSON feature
+        name: saved *.geojson file name
+
+    Raises:
+        ValueError if required param is not supplied
+
+    Examples:
+        Save GeoJSON feature to file.
+
+        >>>name = save_as_geojson(valid_geojson_feature, api='SKOBBLER')
+
+    """
 
     name = '{}_{}.geojson'.format(
             params['api'], 
@@ -161,48 +241,74 @@ def save_as_geojson(geo_feature, **params):
 
 
 def create_parser():
+    """Creates parser for commandline arguments.
     
-    parser = OptionParser(usage='')
+    Returns:
+        parser ()
+
+    Examples:
+        Create parser.
+
+        >>>parser = create_parser()
+
+    """
+    
+    parser = OptionParser()
     
     # Required parameters
     
     parser.add_option(
         '-a', '--api', type='choice', choices=['HERE', 'SKOBBLER'],
-        help=''
+        help='API provider (SKOBBLER, HERE)'
     )
     parser.add_option(
         '-k', '--key', type='string',
-        help=''
+        help='SKOBBLER or HERE API key'
     )
     parser.add_option(
         '-p', '--points', type='string',
-        help=''
+        help='*.csv file to read points from'
     )
     
     # Optional parameters
     
     parser.add_option(
         '-r', '--range', type='int', default=600,
-        help=''
+        help='Range (int)'
     )
     parser.add_option('-u', '--units', type='choice',
         choices=['sec', 'meter', 'time', 'distance'], default='sec',
-        help=''
+        help='Units (sec, meter, time, distance)'
     )
     parser.add_option('-t', '--transport', type='choice',
         choices=['pedestrian', 'bike', 'car'], default='car',
-        help=''
+        help='Transport type (pedestrian, bike, car)'
     )
     parser.add_option(
         '-tf', '--traffic', type='choice',
         choices=['enabled', 'disabled'], default='enabled',
-        help=''
+        help='Real time traffic (enabled, disabled)'
     )
 
     return parser
 
 
 def load_input_data(points):
+    """Creates DictReader from *.csv file.
+
+    Args:
+        points (file object): *.csv file with 'lon' (required),
+            'lat' (required), 'name' (optional) columns
+    
+    Returns:
+        data (DictReader)
+
+    Examples:
+        Load example.csv file
+
+        >>>load_input_data('/path/to/example.csv')
+
+    """
 
     dialect = csv.Sniffer().sniff(points.read())
     
