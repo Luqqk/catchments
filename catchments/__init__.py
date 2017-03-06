@@ -1,4 +1,5 @@
 import os
+import csv
 import json
 import requests
 from functools import wraps
@@ -53,7 +54,7 @@ def request_catchment(point, **params):
             'name' key is optional, 'lon' and 'lat' are required
         **params: [
                 api (required), key (required), transport, range,
-                units, toll, highways, non_reachable, traffic
+                units, toll, highways, non_reachable, jam
             ]
             If optional params won't be supplied, default values will be used
     
@@ -102,7 +103,7 @@ def request_catchment(point, **params):
         
         req_params['mode'] = 'fastest;{};traffic:{}'.format(
             params.get('transport', 'car'),
-            params.get('traffic', 'disabled')
+            params.get('jam', 'disabled')
         )
         
         req_params['range'] = params.get('range', 600)
@@ -122,9 +123,21 @@ def request_catchment(point, **params):
     except requests.HTTPError:
         return False
 
-    # TODO Validate if response has coords
-
     catchment = r.json()
+
+    if params['api'] == 'SKOBBLER':
+
+        try:
+            catchment['realReach']['gpsPoints']
+        except KeyError:
+            return False
+
+    if params['api'] == 'HERE':
+
+        try:
+            catchment['response']['isoline'][0]['component'][0]['shape']
+        except KeyError:
+            return False
 
     catchment['name'] = point.get(
             'name',
@@ -285,7 +298,7 @@ def create_parser():
         help='Transport type (pedestrian, bike, car)'
     )
     parser.add_option(
-        '-tf', '--traffic', type='choice',
+        '-j', '--jam', type='choice',
         choices=['enabled', 'disabled'], default='enabled',
         help='Real time traffic (enabled, disabled)'
     )
@@ -314,6 +327,6 @@ def load_input_data(points):
     
     points.seek(0)
 
-    data = csv.DictReader(file, dialect=dialect)
+    data = csv.DictReader(points, dialect=dialect)
     
     return data
