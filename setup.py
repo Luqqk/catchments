@@ -27,5 +27,7 @@ setup(
         'requests',
     ],
     zip_safe=False,
-    scripts=['bin/catchments-cls.py']
+    scripts=['bin/catchments-cls.py'],
+    test_suite='nose.collector',
+    tests_require=['nose']
 )

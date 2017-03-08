@@ -6,7 +6,7 @@ from catchments import create_parser, load_input_data, request_catchment, \
 def main():
     """Get catchments for points in given file.
 
-    Command line script for aquiring and creating
+    Command line script for acquiring and creating
     GeoJSON files from given file input.
 
     """
@@ -17,7 +17,7 @@ def main():
     params = vars(options)
 
     if not os.path.isfile(params['points']):
-        parser.error('File doesn\'t exists')
+        parser.error('File doesn\'t exist')
 
     file = open(params['points'])
 
