@@ -77,6 +77,6 @@ All supported options for command line script and package functions are mentione
 Tests
 -----
 
-.. code-block: bash
+.. code-block:: bash
 
     $ python setup.py test
