@@ -95,7 +95,7 @@ def request_catchment(point, **params):
         
         req_params['response_type'] = 'gps'
     
-    elif params['api'] == 'HERE':
+    else: # HERE API
 
         url = 'https://isoline.route.cit.api.here.com/routing/7.2/calculateisoline.json'
         
@@ -113,9 +113,6 @@ def request_catchment(point, **params):
         req_params['app_id'] = params['key'].split(',')[0]
         
         req_params['app_code'] = params['key'].split(',')[1]
-    
-    else:
-        raise ValueError('Non supported API')
 
     try:
         r = requests.get(url, params=req_params)
@@ -132,7 +129,7 @@ def request_catchment(point, **params):
         except KeyError:
             return False
 
-    if params['api'] == 'HERE':
+    else: # HERE API
 
         try:
             catchment['response']['isoline'][0]['component'][0]['shape']
@@ -159,8 +156,7 @@ def catchment_as_geojson(catchment, **params):
         dictionary: GeoJSON polygon feature
 
     Raises:
-        ValueError if required param is not supplied or non supported
-            API provider has been chosen
+        ValueError if required param is not supplied
 
     Examples:
         Process catchment to GeoJSON.
@@ -189,7 +185,7 @@ def catchment_as_geojson(catchment, **params):
                         [coord, coords[i + 1]]
                     )
     
-    elif params['api'] == 'HERE':
+    else: # HERE API
         
         shape = catchment['response']['isoline'][0]['component'][0]['shape']
         coords = []
@@ -205,10 +201,7 @@ def catchment_as_geojson(catchment, **params):
                     [coord, coords[i + 1]]
                 )
 
-    else:
-        raise ValueError('Non supported API')
-
-    # Close geojson polygon
+    # Close GeoJSON polygon
     geojson_feature['geometry']['coordinates'][0].append(
         geojson_feature['geometry']['coordinates'][0][0]
     )
@@ -257,7 +250,7 @@ def create_parser():
     """Creates parser for commandline arguments.
     
     Returns:
-        parser ()
+        parser (optparse.OptionParser)
 
     Examples:
         Create parser.
@@ -314,7 +307,7 @@ def load_input_data(points):
             'lat' (required), 'name' (optional) columns
     
     Returns:
-        data (DictReader)
+        data (csv.DictReader)
 
     Examples:
         Load example.csv file
