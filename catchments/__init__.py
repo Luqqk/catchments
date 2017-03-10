@@ -201,10 +201,11 @@ def catchment_as_geojson(catchment, **params):
                     [coord, coords[i + 1]]
                 )
 
-    # Close GeoJSON polygon
-    geojson_feature['geometry']['coordinates'][0].append(
-        geojson_feature['geometry']['coordinates'][0][0]
-    )
+    # Close GeoJSON polygon (Only SKOBBLER)
+    if params['api'] == 'SKOBBLER':
+        geojson_feature['geometry']['coordinates'][0].append(
+            geojson_feature['geometry']['coordinates'][0][0]
+        )
 
     geojson_feature['properties']['name'] = catchment['name']
     
@@ -212,16 +213,17 @@ def catchment_as_geojson(catchment, **params):
 
 
 @validate_required_params('api')
-def save_as_geojson(geo_feature, **params):
+def save_as_geojson(geo_feature, save_in=None, **params):
     """Save GeoJSON feature to *.geojson file
 
     Args:
         geo_feature (dictionary): valid GeoJSON feature object
+        save_in (path): path where to save generated files
         **params: [api (required)]
     
     Returns:
         file: GeoJSON feature
-        name: saved *.geojson file name
+        path_to_save: saved *.geojson file path
 
     Raises:
         ValueError if required param is not supplied
@@ -229,7 +231,7 @@ def save_as_geojson(geo_feature, **params):
     Examples:
         Save GeoJSON feature to file.
 
-        >>>name = save_as_geojson(valid_geojson_feature, api='SKOBBLER')
+        >>>file_path = save_as_geojson(valid_geojson_feature, api='SKOBBLER')
 
     """
 
@@ -237,13 +239,18 @@ def save_as_geojson(geo_feature, **params):
             params['api'], 
             geo_feature['properties']['name']
         )
+    
+    if save_in:
+        path_to_save = os.path.join(save_in, name)
+    else:
+        path_to_save = os.path.join(os.getcwd(), name)
 
     feature = json.dumps(geo_feature, indent=2)
 
-    with open(name, 'w') as f:
+    with open(path_to_save, 'w') as f:
         f.write(feature)
 
-    return name
+    return path_to_save
 
 
 def create_parser():

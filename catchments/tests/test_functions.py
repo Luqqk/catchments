@@ -2,10 +2,20 @@ from unittest import TestCase
 from unittest.mock import patch, Mock
 from optparse import OptionParser
 from io import StringIO
+from tempfile import mkdtemp
+from shutil import rmtree
 from catchments import create_parser, load_input_data, request_catchment, \
     catchment_as_geojson, save_as_geojson, validate_required_params
+import os
 import csv
 import requests
+
+
+# Run tests with:
+# coverage run --branch --source=catchments/ setup.py test
+# To check coverage report (with missing lines)
+# coverage report -m
+
 
 
 class TestParser(TestCase):
@@ -168,24 +178,143 @@ class TestRequestHereCatchment(TestCase):
         self.assertEqual(request_catchment(self.point, **self.params), False)
 
 
-"""
-# Run tests with:
-# coverage run --branch --source=my_module/ setup.py test
-# To check coverage report (with missing lines)
-# coverage report -m
+class TestSkobblerCatchmentAsGeojson(TestCase):
 
-# Not functional for now
+    def setUp(self):
+        self.params = {'api': 'SKOBBLER'}
+        self.catchment = {
+            "realReach": {
+                "gpsBBox": [10.00,45.00,16.00,52.00],
+                "gpsPoints": [
+                    -180.0,85.051129,
+                    180.0,85.051129,
+                    180.0,-85.051129,
+                    -180.0,-85.051129,
+                    10.10,45.20,
+                    11.10,46.20,
+                    12.10,47.20,
+                    13.10,48.20,
+                    14.10,49.20,
+                    15.10,50.20
+                ]
+            },
+            "name": "test_point"
+        }
+        self.geojson = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [10.10,45.20],
+                        [11.10,46.20],
+                        [12.10,47.20],
+                        [13.10,48.20],
+                        [14.10,49.20],
+                        [15.10,50.20],
+                        [10.10,45.20]
+                    ]
+                ]
+            },
+            "properties": {
+                "name": "test_point"
+            }
+        }
+
+    def test_skobbler_catchment_as_geojson(self):
+        geojson_feature = catchment_as_geojson(self.catchment, **self.params)
+        self.assertEqual(geojson_feature, self.geojson)
+    
+    def test_skobbler_catchment_name(self):
+        geojson_feature = catchment_as_geojson(self.catchment, **self.params)
+        self.assertEqual(geojson_feature['properties']['name'], self.geojson['properties']['name'])
+
+
+class TestHereCatchmentAsGeojson(TestCase):
+
+    def setUp(self):
+        "50.3827858,16.9758511"
+        self.params = {'api': 'HERE'}
+        self.catchment = {
+            "response": {
+                "isoline": [
+                    {"component": [
+                            {"shape": [
+                                    "50.00,16.00",
+                                    "50.10,16.10",
+                                    "50.20,16.20",
+                                    "50.30,16.30",
+                                    "50.00,16.00",
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "name": "test_point"
+        }
+        self.geojson = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [16.00,50.00],
+                        [16.10,50.10],
+                        [16.20,50.20],
+                        [16.30,50.30],
+                        [16.00,50.00]
+                    ]
+                ]
+            },
+            "properties": {
+                "name": "test_point"
+            }
+        }
+
+    def test_here_catchment_as_geojson(self):
+        geojson_feature = catchment_as_geojson(self.catchment, **self.params)
+        self.assertEqual(geojson_feature, self.geojson)
+    
+    def test_here_catchment_name(self):
+        geojson_feature = catchment_as_geojson(self.catchment, **self.params)
+        self.assertEqual(geojson_feature['properties']['name'], self.geojson['properties']['name'])
+
+
 class TestSaveAsGeojson(TestCase):
 
     def setUp(self):
         self.params = {'api': 'SKOBBLER', 'key': 'your_api_key'}
         # Create a temporary directory
-        self.test_dir = tempfile.mkdtemp()
+        self.test_dir = mkdtemp()
+        self.geojson = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [16.00,50.00],
+                        [16.10,50.10],
+                        [16.20,50.20],
+                        [16.30,50.30],
+                        [16.00,50.00]
+                    ]
+                ]
+            },
+            "properties": {
+                "name": "test_point"
+            }
+        }
 
     def tearDown(self):
         # Remove the directory after the test
-        shutil.rmtree(self.test_dir)
+        rmtree(self.test_dir)
 
+    def test_save_as_geojson_with_save_in(self):
+        path_to_save = save_as_geojson(self.geojson, save_in=self.test_dir, **self.params)
+        self.assertEqual(path_to_save, os.path.join(self.test_dir, 'SKOBBLER_test_point.geojson'))
+    
     def test_save_as_geojson(self):
-        pass
-"""
+        path_to_save = save_as_geojson(self.geojson, **self.params)
+        os.remove(path_to_save)
+        self.assertEqual(path_to_save, os.path.join(os.getcwd(), 'SKOBBLER_test_point.geojson'))

@@ -1,16 +1,17 @@
 from setuptools import setup
 
 
-def readme():
-    with open('README.rst') as f:
-        return f.read()
+with open('README.rst') as f:
+    readme = f.read()
+with open('HISTORY.rst') as f:
+    history = f.read()
 
 
 setup(
     name='catchments',
     version='0.9.0',
     description='A simple package for acquiring and manipulating catchments from Skobbler and Here API',
-    long_description=readme(),
+    long_description=readme + '\n\n' + history,
     classifiers=[
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',

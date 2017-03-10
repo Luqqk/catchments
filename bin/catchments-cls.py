@@ -29,8 +29,8 @@ def main():
 
         if catchment:
             geojson_feature = catchment_as_geojson(catchment, **params)
-            name = save_as_geojson(geojson_feature, **params)
-            print('{} file has been created.'.format(name))
+            file_path = save_as_geojson(geojson_feature, **params)
+            print('{} file has been created.'.format(file_path))
         else:
             print('Couldn\'t get catchment for {},{} coordinates.'.format(
                 point['lat'], point['lon'])
