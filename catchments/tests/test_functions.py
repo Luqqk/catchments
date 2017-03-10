@@ -9,6 +9,9 @@ from catchments import create_parser, load_input_data, request_catchment, \
 import os
 import csv
 import requests
+# csv.OrderedDict is supported only in Python > 3.6
+# collections.OrderedDict for backward compatibility (Python < 3.6)
+import collections
 
 
 # Run tests with:
@@ -41,7 +44,7 @@ class TestLoadInputData(TestCase):
     def test_data_output(self):
         data = load_input_data(self.data_temp)
         for row in data:
-            self.assertEqual(row, csv.OrderedDict([('lat', '52.02'), ('lon', '16.02')]))
+            self.assertEqual(row, collections.OrderedDict([('lat', '52.02'), ('lon', '16.02')]))
     
 
 class TestValidateDecorator(TestCase):
