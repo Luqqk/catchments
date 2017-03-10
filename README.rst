@@ -1,7 +1,7 @@
 Catchments
 ==========
 
-Simple package for acquiring and manipulating catchments from SKOBBLER and HERE API.
+Simple package for acquiring and manipulating catchments from SKOBBLER (Real Reach) and HERE (Isolines) API.
 
 Installation
 ------------
