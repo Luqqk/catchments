@@ -1,3 +1,9 @@
+.. image:: https://travis-ci.org/Luqqk/catchments.svg?branch=master
+    :target: https://travis-ci.org/Luqqk/catchments
+
+.. image:: https://coveralls.io/repos/github/Luqqk/catchments/badge.svg
+    :target: https://coveralls.io/github/Luqqk/catchments
+
 Catchments
 ==========
 
@@ -80,3 +86,9 @@ Tests
 .. code-block:: bash
 
     $ python setup.py test
+
+TODO
+----
+
+Refactor cyclomatic complexity (10) for catchment_as_geojson function
+Refactor cyclomatic complexity (6) for request_catchment function

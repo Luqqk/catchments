@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import os.path
 from catchments import create_parser, load_input_data, request_catchment, \
     catchment_as_geojson, save_as_geojson

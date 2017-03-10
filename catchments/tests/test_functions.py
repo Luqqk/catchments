@@ -6,6 +6,9 @@ from tempfile import mkdtemp
 from shutil import rmtree
 from catchments import create_parser, load_input_data, request_catchment, \
     catchment_as_geojson, save_as_geojson, validate_required_params
+from .test_data import EXAMPLE_SKOBBLER_PARAMS, EXAMPLE_HERE_PARAMS, \
+    EXAMPLE_SKOBBLER_CATCHMENT, EXAMPLE_SKOBBLER_GEOJSON, \
+    EXAMPLE_HERE_CATCHMENT, EXAMPLE_HERE_GEOJSON
 import os
 import csv
 import requests
@@ -50,7 +53,6 @@ class TestLoadInputData(TestCase):
 class TestValidateDecorator(TestCase):
 
     def setUp(self):
-        self.params = {'api': 'SKOBBLER', 'key': 'your_api_key'}
 
         @validate_required_params('api', 'key')
         def func(**params):
@@ -59,88 +61,82 @@ class TestValidateDecorator(TestCase):
         self.func_to_validate = func
     
     def test_successful_validation(self):
-        self.assertEqual(self.func_to_validate(**self.params), True)
+        self.assertEqual(self.func_to_validate(**EXAMPLE_SKOBBLER_PARAMS), True)
     
     def test_failed_validation(self):
-        self.assertEqual(self.func_to_validate(**self.params), True)
-        del self.params['key']
-        self.assertRaises(ValueError, self.func_to_validate, **self.params)
+        self.assertEqual(self.func_to_validate(**EXAMPLE_SKOBBLER_PARAMS), True)
+        missing_required_param = {'api': 'SKOBBLER'}
+        self.assertRaises(ValueError, self.func_to_validate, **missing_required_param)
     
     def test_unsupported_api_value_in_params(self):
-        self.assertEqual(self.func_to_validate(**self.params), True)
-        self.params['api'] = 'MAPZEN'
-        self.assertRaises(ValueError, self.func_to_validate, **self.params)
+        self.assertEqual(self.func_to_validate(**EXAMPLE_SKOBBLER_PARAMS), True)
+        wrong_api_params = {'api': 'MAPZEN', 'key': 'your_api_key'}
+        self.assertRaises(ValueError, self.func_to_validate, **wrong_api_params)
 
 
 class TestRequestSkobblerCatchment(TestCase):
 
     def setUp(self):
-        self.params = {'api': 'SKOBBLER', 'key': 'your_api_key'}
-        self.point = {'lat': 50.0, 'lon': 16.0}
+        self.skobbler_point = {'lat': 50.0, 'lon': 16.0}
+        # Construct mock response object
+        self.skobbler_mock_response = Mock()
     
     @patch('requests.get')
     def test_request_catchment_wrong_api(self, mock_request):
-        self.params['api'] = 'MAPZEN'
-        self.assertRaises(ValueError, request_catchment, self.point, **self.params)
+        wrong_skobbler_params = {'api': 'MAPZEN', 'key': 'your_api_key'}
+        self.assertRaises(ValueError, request_catchment, self.skobbler_point, **wrong_skobbler_params)
 
     @patch('requests.get')
     def test_request_skobbler_catchment(self, mock_request):
-        # Construct mock response object
-        mock_response = Mock()
-        
-        expected_response = {
+        successful_skobbler_response = {
             "realReach": {
                 "gpsPoints": []
             }
         }
         # Assign mock response as the result of patched function
-        mock_response.json.return_value = expected_response
-        mock_request.return_value = mock_response
+        self.skobbler_mock_response.json.return_value = successful_skobbler_response
+        mock_request.return_value = self.skobbler_mock_response
 
-        self.assertEqual(request_catchment(self.point, **self.params), expected_response)
+        self.assertEqual(
+            request_catchment(self.skobbler_point, **EXAMPLE_SKOBBLER_PARAMS), 
+            successful_skobbler_response
+        )
     
     @patch('requests.get')
     def test_request_skobbler_catchment_http_error(self, mock_request):
-        mock_response = Mock()
-        
-        expected_response = {}
+        skobbler_http_error_response = {}
 
         http_error = requests.exceptions.HTTPError()
         
-        mock_response.json.return_value = expected_response
-        mock_response.raise_for_status.side_effect = http_error
-        mock_request.return_value = mock_response
-        self.assertEqual(request_catchment(self.point, **self.params), False)
+        self.skobbler_mock_response.json.return_value = skobbler_http_error_response
+        self.skobbler_mock_response.raise_for_status.side_effect = http_error
+        mock_request.return_value = self.skobbler_mock_response
+        self.assertEqual(request_catchment(self.skobbler_point, **EXAMPLE_SKOBBLER_PARAMS), False)
     
     @patch('requests.get')
     def test_request_skobbler_empty_catchment(self, mock_request):
-        mock_response = Mock()
+        skobbler_invalid_empty_response = {}
         
-        expected_response = {}
-        
-        mock_response.json.return_value = expected_response
-        mock_request.return_value = mock_response
+        self.skobbler_mock_response.json.return_value = skobbler_invalid_empty_response
+        mock_request.return_value = self.skobbler_mock_response
 
-        self.assertEqual(request_catchment(self.point, **self.params), False)
+        self.assertEqual(request_catchment(self.skobbler_point, **EXAMPLE_SKOBBLER_PARAMS), False)
 
 
 class TestRequestHereCatchment(TestCase):
 
     def setUp(self):
-        self.params = {'api': 'HERE', 'key': 'your_api_id,your_app_code'}
-        self.point = {'lat': 50.0, 'lon': 16.0}
+        self.here_point = {'lat': 50.0, 'lon': 16.0}
+        self.here_mock_response = Mock()
     
     @patch('requests.get')
     def test_request_catchment_wrong_api(self, mock_request):
-        self.params['api'] = 'MAPZEN'
-        self.assertRaises(ValueError, request_catchment, self.point, **self.params)
+        wrong_here_params = {'api': 'MAPZEN', 'key': 'your_app_id,your_app_code'}
+        self.assertRaises(ValueError, request_catchment, self.here_point, **wrong_here_params)
 
     @patch('requests.get')
     def test_request_here_catchment(self, mock_request):
-        mock_response = Mock()
-
-        #expected_response = {"response":["isoline":["component":["shape":[]]]]}
-        expected_response = {
+        successful_here_response = {
             "response": {
                 "isoline": [
                     {"component": [
@@ -151,163 +147,79 @@ class TestRequestHereCatchment(TestCase):
             }
         }
         
-        mock_response.json.return_value = expected_response
-        mock_request.return_value = mock_response
+        self.here_mock_response.json.return_value = successful_here_response
+        mock_request.return_value = self.here_mock_response
 
-        self.assertEqual(request_catchment(self.point, **self.params), expected_response)
+        self.assertEqual(
+            request_catchment(self.here_point, **EXAMPLE_HERE_PARAMS),
+            successful_here_response
+        )
     
     @patch('requests.get')
     def test_request_here_catchment_http_error(self, mock_request):
-        mock_response = Mock()
-        
-        expected_response = {}
+        here_http_error_response = {}
 
         http_error = requests.exceptions.HTTPError()
         
-        mock_response.json.return_value = expected_response
-        mock_response.raise_for_status.side_effect = http_error
-        mock_request.return_value = mock_response
-        self.assertEqual(request_catchment(self.point, **self.params), False)
+        self.here_mock_response.json.return_value = here_http_error_response
+        self.here_mock_response.raise_for_status.side_effect = http_error
+        mock_request.return_value = self.here_mock_response
+        self.assertEqual(request_catchment(self.here_point, **EXAMPLE_HERE_PARAMS), False)
     
     @patch('requests.get')
     def test_request_here_empty_catchment(self, mock_request):
-        mock_response = Mock()
+        here_invalid_empty_response = {}
         
-        expected_response = {}
-        
-        mock_response.json.return_value = expected_response
-        mock_request.return_value = mock_response
+        self.here_mock_response.json.return_value = here_invalid_empty_response
+        mock_request.return_value = self.here_mock_response
 
-        self.assertEqual(request_catchment(self.point, **self.params), False)
+        self.assertEqual(request_catchment(self.here_point, **EXAMPLE_HERE_PARAMS), False)
 
 
 class TestSkobblerCatchmentAsGeojson(TestCase):
 
     def setUp(self):
-        self.params = {'api': 'SKOBBLER'}
-        self.catchment = {
-            "realReach": {
-                "gpsBBox": [10.00,45.00,16.00,52.00],
-                "gpsPoints": [
-                    -180.0,85.051129,
-                    180.0,85.051129,
-                    180.0,-85.051129,
-                    -180.0,-85.051129,
-                    10.10,45.20,
-                    11.10,46.20,
-                    12.10,47.20,
-                    13.10,48.20,
-                    14.10,49.20,
-                    15.10,50.20
-                ]
-            },
-            "name": "test_point"
-        }
-        self.geojson = {
-            "type": "Feature",
-            "geometry": {
-                "type": "Polygon",
-                "coordinates": [
-                    [
-                        [10.10,45.20],
-                        [11.10,46.20],
-                        [12.10,47.20],
-                        [13.10,48.20],
-                        [14.10,49.20],
-                        [15.10,50.20],
-                        [10.10,45.20]
-                    ]
-                ]
-            },
-            "properties": {
-                "name": "test_point"
-            }
-        }
+        self.skobbler_catchment = EXAMPLE_SKOBBLER_CATCHMENT
+        self.skobbler_geojson = EXAMPLE_SKOBBLER_GEOJSON
+        self.skobbler_geojson_feature = catchment_as_geojson(
+            EXAMPLE_SKOBBLER_CATCHMENT, **EXAMPLE_SKOBBLER_PARAMS
+        )
 
     def test_skobbler_catchment_as_geojson(self):
-        geojson_feature = catchment_as_geojson(self.catchment, **self.params)
-        self.assertEqual(geojson_feature, self.geojson)
+        self.assertEqual(self.skobbler_geojson_feature, self.skobbler_geojson)
     
     def test_skobbler_catchment_name(self):
-        geojson_feature = catchment_as_geojson(self.catchment, **self.params)
-        self.assertEqual(geojson_feature['properties']['name'], self.geojson['properties']['name'])
+        self.assertEqual(
+            self.skobbler_geojson_feature['properties']['name'],
+            self.skobbler_geojson['properties']['name']
+        )
 
 
 class TestHereCatchmentAsGeojson(TestCase):
 
     def setUp(self):
-        "50.3827858,16.9758511"
-        self.params = {'api': 'HERE'}
-        self.catchment = {
-            "response": {
-                "isoline": [
-                    {"component": [
-                            {"shape": [
-                                    "50.00,16.00",
-                                    "50.10,16.10",
-                                    "50.20,16.20",
-                                    "50.30,16.30",
-                                    "50.00,16.00",
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            "name": "test_point"
-        }
-        self.geojson = {
-            "type": "Feature",
-            "geometry": {
-                "type": "Polygon",
-                "coordinates": [
-                    [
-                        [16.00,50.00],
-                        [16.10,50.10],
-                        [16.20,50.20],
-                        [16.30,50.30],
-                        [16.00,50.00]
-                    ]
-                ]
-            },
-            "properties": {
-                "name": "test_point"
-            }
-        }
+        self.here_geojson = EXAMPLE_HERE_GEOJSON
+        self.here_geojson_feature = catchment_as_geojson(
+            EXAMPLE_HERE_CATCHMENT, **EXAMPLE_HERE_PARAMS
+        )
 
     def test_here_catchment_as_geojson(self):
-        geojson_feature = catchment_as_geojson(self.catchment, **self.params)
-        self.assertEqual(geojson_feature, self.geojson)
+        self.assertEqual(self.here_geojson_feature, self.here_geojson)
     
     def test_here_catchment_name(self):
-        geojson_feature = catchment_as_geojson(self.catchment, **self.params)
-        self.assertEqual(geojson_feature['properties']['name'], self.geojson['properties']['name'])
+        self.assertEqual(
+            self.here_geojson_feature['properties']['name'],
+            self.here_geojson['properties']['name']
+        )
 
 
 class TestSaveAsGeojson(TestCase):
 
     def setUp(self):
-        self.params = {'api': 'SKOBBLER', 'key': 'your_api_key'}
+        self.params = EXAMPLE_SKOBBLER_PARAMS
         # Create a temporary directory
         self.test_dir = mkdtemp()
-        self.geojson = {
-            "type": "Feature",
-            "geometry": {
-                "type": "Polygon",
-                "coordinates": [
-                    [
-                        [16.00,50.00],
-                        [16.10,50.10],
-                        [16.20,50.20],
-                        [16.30,50.30],
-                        [16.00,50.00]
-                    ]
-                ]
-            },
-            "properties": {
-                "name": "test_point"
-            }
-        }
+        self.geojson = EXAMPLE_SKOBBLER_GEOJSON
 
     def tearDown(self):
         # Remove the directory after the test
