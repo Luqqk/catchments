@@ -139,17 +139,6 @@ class TestRequestHereCatchment(TestCase):
             request_catchment(self.here_point, **EXAMPLE_HERE_PARAMS),
             successful_here_response
         )
-    
-    @patch('requests.get')
-    def test_request_here_catchment_http_error(self, mock_request):
-        here_http_error_response = {}
-
-        http_error = requests.exceptions.HTTPError()
-        
-        self.here_mock_response.json.return_value = here_http_error_response
-        self.here_mock_response.raise_for_status.side_effect = http_error
-        mock_request.return_value = self.here_mock_response
-        self.assertEqual(request_catchment(self.here_point, **EXAMPLE_HERE_PARAMS), None)
 
 
 class TestSkobblerCatchmentAsGeojson(TestCase):
