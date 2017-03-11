@@ -9,7 +9,7 @@ with open('HISTORY.rst') as f:
 
 setup(
     name='catchments',
-    version='0.9.0',
+    version='0.9.1',
     description='A simple package for acquiring and manipulating catchments from Skobbler and Here API',
     long_description=readme + '\n\n' + history,
     classifiers=[

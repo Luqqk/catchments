@@ -18,6 +18,10 @@ def main():
     (options, args) = parser.parse_args()
     params = vars(options)
 
+    for param in ['api', 'key', 'points']:
+        if params[param] is None:
+            parser.error('Missing required param')
+
     if not os.path.isfile(params['points']):
         parser.error('File doesn\'t exist')
 
