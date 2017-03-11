@@ -4,6 +4,9 @@
 .. image:: https://coveralls.io/repos/github/Luqqk/catchments/badge.svg
     :target: https://coveralls.io/github/Luqqk/catchments
 
+.. image:: https://lima.codeclimate.com/github/Luqqk/catchments/badges/gpa.svg?output=embed
+   :target: https://lima.codeclimate.com/github/Luqqk/catchments
+
 Catchments
 ==========
 
@@ -90,4 +93,4 @@ Tests
 To fix
 ------
 
-Refactor cyclomatic complexity (12) for catchment_as_geojson function
+Refactor cyclomatic complexity (11) for catchment_as_geojson function
