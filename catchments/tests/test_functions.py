@@ -118,11 +118,6 @@ class TestRequestHereCatchment(TestCase):
     def setUp(self):
         self.here_point = {'lat': 50.0, 'lon': 16.0}
         self.here_mock_response = Mock()
-    
-    @patch('requests.get')
-    def test_request_catchment_wrong_api(self, mock_request):
-        wrong_here_params = {'api': 'MAPZEN', 'key': 'your_app_id,your_app_code'}
-        self.assertRaises(ValueError, request_catchment, self.here_point, **wrong_here_params)
 
     @patch('requests.get')
     def test_request_here_catchment(self, mock_request):
@@ -176,7 +171,7 @@ class TestSkobblerCatchmentAsGeojson(TestCase):
         )
     
     def test_skobbler_invalid_api_response(self):
-        invalid_skobbler_response = {}
+        invalid_skobbler_response = {"status": {"httpCode": 401}}
         self.assertEqual(
             catchment_as_geojson(invalid_skobbler_response, **EXAMPLE_SKOBBLER_PARAMS),
             None
@@ -194,14 +189,8 @@ class TestHereCatchmentAsGeojson(TestCase):
     def test_here_catchment_as_geojson(self):
         self.assertEqual(self.here_geojson_feature, self.here_geojson)
     
-    def test_here_catchment_name(self):
-        self.assertEqual(
-            self.here_geojson_feature['properties']['name'],
-            self.here_geojson['properties']['name']
-        )
-    
     def test_here_invalid_api_response(self):
-        invalid_here_response = {}
+        invalid_here_response = {"response": {"type": "PermissionError"}}
         self.assertEqual(
             catchment_as_geojson(invalid_here_response, **EXAMPLE_HERE_PARAMS),
             None

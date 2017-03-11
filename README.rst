@@ -26,7 +26,7 @@ You can use package functions to build Your own scripts:
     >>> from catchments import request_catchment, catchment_as_geojson, \
             save_as_geojson
 
-    >>> # get catchment from API
+    >>> # Get catchment from API
     >>> params = {'api': 'SKOBBLER', 'key': 'your_api_key'}
     >>> catchment = request_catchment({'lat' 52.05, 'lon': 16.82}, **params)
     >>> {"realReach": {...} ...}
@@ -87,8 +87,7 @@ Tests
 
     $ python setup.py test
 
-TODO
-----
+To fix
+------
 
-Refactor cyclomatic complexity (10) for catchment_as_geojson function
-Refactor cyclomatic complexity (6) for request_catchment function
+Refactor cyclomatic complexity (12) for catchment_as_geojson function

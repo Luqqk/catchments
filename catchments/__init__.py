@@ -173,6 +173,10 @@ def catchment_as_geojson(catchment, **params):
                     geojson_feature['geometry']['coordinates'][0].append(
                         [coord, coords[i + 1]]
                     )
+        # Close GeoJSON polygon (Only SKOBBLER)
+        geojson_feature['geometry']['coordinates'][0].append(
+            geojson_feature['geometry']['coordinates'][0][0]
+        )
     
     else: # HERE API
 
@@ -192,12 +196,6 @@ def catchment_as_geojson(catchment, **params):
                 geojson_feature['geometry']['coordinates'][0].append(
                     [coord, coords[i + 1]]
                 )
-
-    # Close GeoJSON polygon (Only SKOBBLER)
-    if params['api'] == 'SKOBBLER':
-        geojson_feature['geometry']['coordinates'][0].append(
-            geojson_feature['geometry']['coordinates'][0][0]
-        )
 
     geojson_feature['properties']['name'] = catchment['name']
     
