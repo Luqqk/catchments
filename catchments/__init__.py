@@ -59,7 +59,7 @@ def request_catchment(point, **params):
             If optional params won't be supplied, default values will be used
     
     Returns:
-        dictionary: api response if successful, False otherwise
+        dictionary: api response if successful, None otherwise
 
     Raises:
         ValueError if required param is not supplied
@@ -118,23 +118,9 @@ def request_catchment(point, **params):
         r = requests.get(url, params=req_params)
         r.raise_for_status()
     except requests.HTTPError:
-        return False
+        return None
 
     catchment = r.json()
-
-    if params['api'] == 'SKOBBLER':
-
-        try:
-            catchment['realReach']['gpsPoints']
-        except KeyError:
-            return False
-
-    else: # HERE API
-
-        try:
-            catchment['response']['isoline'][0]['component'][0]['shape']
-        except KeyError:
-            return False
 
     catchment['name'] = point.get(
             'name',
@@ -153,7 +139,7 @@ def catchment_as_geojson(catchment, **params):
         **params: [api (required)]
     
     Returns:
-        dictionary: GeoJSON polygon feature
+        dictionary: GeoJSON polygon feature if successful, None otherwise
 
     Raises:
         ValueError if required param is not supplied
@@ -174,9 +160,12 @@ def catchment_as_geojson(catchment, **params):
     }
 
     if params['api'] == 'SKOBBLER':
-        
-        coords = catchment['realReach']['gpsPoints']
-        bbox = catchment['realReach']['gpsBBox']
+
+        try:
+            coords = catchment['realReach']['gpsPoints']
+            bbox = catchment['realReach']['gpsBBox']
+        except KeyError:
+            return None
         
         for i, coord in enumerate(coords):
             if (i % 2 == 0):
@@ -186,10 +175,13 @@ def catchment_as_geojson(catchment, **params):
                     )
     
     else: # HERE API
-        
-        shape = catchment['response']['isoline'][0]['component'][0]['shape']
-        coords = []
 
+        try:
+            shape = catchment['response']['isoline'][0]['component'][0]['shape']
+        except KeyError:
+            return None
+        
+        coords = []
         for coord in shape:
             lat_lon = coord.split(',')
             coords.append(float(lat_lon[1]))

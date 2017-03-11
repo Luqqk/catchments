@@ -23,7 +23,6 @@ import collections
 # coverage report -m
 
 
-
 class TestParser(TestCase):
 
     def test_parser_creation(self):
@@ -111,16 +110,7 @@ class TestRequestSkobblerCatchment(TestCase):
         self.skobbler_mock_response.json.return_value = skobbler_http_error_response
         self.skobbler_mock_response.raise_for_status.side_effect = http_error
         mock_request.return_value = self.skobbler_mock_response
-        self.assertEqual(request_catchment(self.skobbler_point, **EXAMPLE_SKOBBLER_PARAMS), False)
-    
-    @patch('requests.get')
-    def test_request_skobbler_empty_catchment(self, mock_request):
-        skobbler_invalid_empty_response = {}
-        
-        self.skobbler_mock_response.json.return_value = skobbler_invalid_empty_response
-        mock_request.return_value = self.skobbler_mock_response
-
-        self.assertEqual(request_catchment(self.skobbler_point, **EXAMPLE_SKOBBLER_PARAMS), False)
+        self.assertEqual(request_catchment(self.skobbler_point, **EXAMPLE_SKOBBLER_PARAMS), None)
 
 
 class TestRequestHereCatchment(TestCase):
@@ -164,16 +154,7 @@ class TestRequestHereCatchment(TestCase):
         self.here_mock_response.json.return_value = here_http_error_response
         self.here_mock_response.raise_for_status.side_effect = http_error
         mock_request.return_value = self.here_mock_response
-        self.assertEqual(request_catchment(self.here_point, **EXAMPLE_HERE_PARAMS), False)
-    
-    @patch('requests.get')
-    def test_request_here_empty_catchment(self, mock_request):
-        here_invalid_empty_response = {}
-        
-        self.here_mock_response.json.return_value = here_invalid_empty_response
-        mock_request.return_value = self.here_mock_response
-
-        self.assertEqual(request_catchment(self.here_point, **EXAMPLE_HERE_PARAMS), False)
+        self.assertEqual(request_catchment(self.here_point, **EXAMPLE_HERE_PARAMS), None)
 
 
 class TestSkobblerCatchmentAsGeojson(TestCase):
@@ -193,6 +174,13 @@ class TestSkobblerCatchmentAsGeojson(TestCase):
             self.skobbler_geojson_feature['properties']['name'],
             self.skobbler_geojson['properties']['name']
         )
+    
+    def test_skobbler_invalid_api_response(self):
+        invalid_skobbler_response = {}
+        self.assertEqual(
+            catchment_as_geojson(invalid_skobbler_response, **EXAMPLE_SKOBBLER_PARAMS),
+            None
+        )
 
 
 class TestHereCatchmentAsGeojson(TestCase):
@@ -210,6 +198,13 @@ class TestHereCatchmentAsGeojson(TestCase):
         self.assertEqual(
             self.here_geojson_feature['properties']['name'],
             self.here_geojson['properties']['name']
+        )
+    
+    def test_here_invalid_api_response(self):
+        invalid_here_response = {}
+        self.assertEqual(
+            catchment_as_geojson(invalid_here_response, **EXAMPLE_HERE_PARAMS),
+            None
         )
 
 
