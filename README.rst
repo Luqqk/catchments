@@ -90,7 +90,8 @@ Tests
 
     $ python setup.py test
 
-To fix
+TODO
 ------
 
-Refactor cyclomatic complexity (11) for catchment_as_geojson function
+* Refactor cyclomatic complexity (11) for catchment_as_geojson function
+* Add support for Mapzen API catchments
