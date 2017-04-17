@@ -7,8 +7,8 @@
 .. image:: https://lima.codeclimate.com/github/Luqqk/catchments/badges/gpa.svg?output=embed
    :target: https://lima.codeclimate.com/github/Luqqk/catchments
 
-Catchments
-==========
+🌍 catchments
+=============
 
 Simple package for acquiring and manipulating catchments from SKOBBLER (Real Reach) and HERE (Isolines) API.
 
