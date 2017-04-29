@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
 import os.path
-from catchments import create_parser, load_input_data, request_catchment, \
-    catchment_as_geojson, save_as_geojson
+from catchments import SkobblerAPI, HereAPI
+from catchments.utils import create_parser, load_input_data
 
 
 def main():
@@ -24,6 +24,11 @@ def main():
 
     if not os.path.isfile(params['points']):
         parser.error('File doesn\'t exist')
+    
+    if params['api'] == 'SKOBBLER':
+        api_provider = SkobblerAPI(params['key'])
+    else:
+        api_provider = HereAPI(params['key'])
 
     file = open(params['points'])
 
@@ -31,12 +36,12 @@ def main():
 
     for point in points:
 
-        catchment = request_catchment(point, **params)
+        catchment = api_provider.get_catchment(point, **params)
 
         if catchment:
-            geojson_feature = catchment_as_geojson(catchment, **params)
+            geojson_feature = api_provider.catchment_as_geojson(catchment)
             if geojson_feature:
-                file_path = save_as_geojson(geojson_feature, **params)
+                file_path = api_provider.save_as_geojson(geojson_feature)
                 print('{} file has been created.'.format(file_path))
             else:
                 print('Couldn\'t proccess catchment for {},{} to GeoJSON (Invalid API response)'.format(

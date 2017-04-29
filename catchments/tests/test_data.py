@@ -1,6 +1,6 @@
-EXAMPLE_SKOBBLER_PARAMS = {'api': 'SKOBBLER', 'key': 'your_api_key'}
+EXAMPLE_SKOBBLER_PARAMS = {"range": 800}
 
-EXAMPLE_HERE_PARAMS = {'api': 'HERE', 'key': 'your_app_id,your_app_code'}
+EXAMPLE_HERE_PARAMS = {"range": 1200}
 
 EXAMPLE_SKOBBLER_CATCHMENT = {
     "realReach": {
