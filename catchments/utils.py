@@ -52,19 +52,19 @@ def create_parser():
     )
     parser.add_option(
         '-l', '--toll', type='choice',
-        choices=[0, 1], default=0,
+        choices=['0', '1'], default='0',
         help='''ONLY SKOBBLER. Specifies whether to avoid or not 
         the use of toll roads in route calculation (0, 1)'''
     )
     parser.add_option(
         '-w', '--highways', type='choice',
-        choices=[0, 1], default=0,
+        choices=['0', '1'], default='0',
         help='''ONLY SKOBBLER. Specifies whether to avoid or not
         the use of highways in route calculation (0, 1)'''
     )
     parser.add_option(
         '-n', '--non_reachable', type='choice',
-        choices=[0, 1], default=0,
+        choices=['0', '1'], default='0',
         help='''ONLY SKOBBLER. Specifies whether to calculate
         or not the interior contours (non reachable areas)
         inside the RealReach™ (0, 1)'''

@@ -9,6 +9,9 @@
 
 Python wrapper for SKOBBLER RealReach and HERE Isolines API. It allows to acquire and manipulate catchments from those APIs.
 
+.. image:: img/catchments.png
+    :target: https://github.com/Luqqk/catchments/img/catchments.png
+
 Installation
 ------------
 

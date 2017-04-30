@@ -56,11 +56,11 @@ class SkobblerAPI(object):
 
         request_params['units'] = params.get('units', 'sec')
 
-        request_params['toll'] = params.get('toll', 0)
+        request_params['toll'] = params.get('toll', '0')
 
-        request_params['highways'] = params.get('highways', 0)
+        request_params['highways'] = params.get('highways', '0')
 
-        request_params['nonReachable'] = params.get('non_reachable', 0)
+        request_params['nonReachable'] = params.get('non_reachable', '0')
 
         request_params['response_type'] = 'gps'
 
