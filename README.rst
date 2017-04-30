@@ -25,7 +25,8 @@ Usage
 
     >>> # get catchment from Skobbler API
     >>> skobbler = SkobblerAPI('your_api_key')
-    >>> params = {"range": 600, "highways": 0}
+    >>> # if you don't provide params values default ones will be used
+    >>> params = {"range": 600, "highways": 1}
     >>> catchment = skobbler.get_catchment({'lat' 52.05, 'lon': 16.82}, **params)
     >>> {"realReach": {...} ...}
     >>> geojson = skobbler.catchment_as_geojson(catchment)
@@ -35,7 +36,7 @@ Usage
 
 Params supported by SKOBBLER and HERE:
 
-`Skobbler RealReach API params <https://developer.skobbler.com/getting-started/web#sec3>`_
+`Skobbler RealReach API params <https://developer.skobbler.com/getting-started/web#sec3>`_ (startMercator, response_type - not supported)
 
 `HERE Isoline API params <https://developer.here.com/rest-apis/documentation/routing/topics/request-isoline.html>`_
 
@@ -57,49 +58,50 @@ Example \*.csv file structure (name column is optional):
 
 All supported options for command line script are mentioned below:
 
-* api [required] - default value is **None**. You can choose from **SKOBBLER** and **HERE**
+* -a --api [REQUIRED] [SKOBBLER AND HERE] - default value is **None**. You can choose from **SKOBBLER** or **HERE**.
 
-* key [required] - default value is **None**
+* -k --key [REQUIRED] [SKOBBLER AND HERE] - default value is **None**. Format this param like this:
     
     * SKOBBLER - "your_api_key"
     * HERE - "app_id,app_code"
 
-* points [required] - default value is **None**. Path to \*.csv file with points.
+* -p --points [REQUIRED] [SKOBBLER AND HERE] - default value is **None**:
 
-* range - default value is:
+    * SKOBBLER - path to \*.csv file with points
+    * HERE - path to \*.csv file with points
+
+* -r --range - [OPTIONAL] [SKOBBLER AND HERE] default value is:
 
     * SKOBBLER **600**
     * HERE **600**
 
-* units - default value is:
+* -e --range-type - [OPTIONAL] [HERE ONLY] default value is:
 
-    * SKOBBLER **sec**
-    * HERE (rangetype) **time**
+    * **time**
 
-* transport - default value is:
+* -m --mode - [OPTIONAL] [HERE ONLY] default value is:
 
-    * SKOBBLER **car**
-    * HERE **car**
+    * **fastest;car;traffic:disabled**
 
-* jam - default value is:
+* -u --units - [OPTIONAL] [SKOBBLER ONLY] default value is:
 
-    * SKOBBLER not supported
-    * HERE **disabled**
+    * **sec**
 
-* toll - default value is (currently not supported by catchments-cls.py):
+* -t --transport - [OPTIONAL] [SKOBBLER ONLY] default value is:
 
-    * SKOBBLER 1
-    * HERE not supported
+    * **car**
 
-* highways - default value is (currently not supported by catchments-cls.py):
+* -l --toll - [OPTIONAL] [SKOBBLER ONLY] default value is:
 
-    * SKOBBLER 1
-    * HERE not supported
+    * **0**
 
-* non_reachable - default value is (currently not supported by catchments-cls.py):
+* -w --highways - [OPTIONAL] [SKOBBLER ONLY] default value is:
 
-    * SKOBBLER 1
-    * HERE not supported
+    * **0**
+
+* -n --non_reachable - [OPTIONAL] [SKOBBLER ONLY] default value is:
+
+    * **0**
 
 Tests
 -----

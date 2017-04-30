@@ -34,39 +34,38 @@ class HereAPI(object):
 
         :param params (**dictionary):
                 supported keys:
-                    transport, range, units, toll, highways, non_reachable, jam
-            
+                    mode, range, rangetype
+
         If optional params won't be supplied, default values will be used.
-    
+
         Returns:
             API response if successful, None otherwise.
         """
 
         url = 'https://isoline.route.cit.api.here.com/routing/7.2/calculateisoline.json'
-        
-        params['start'] = 'geo!{1},{0}'.format(point['lon'], point['lat'])
-        
-        params['mode'] = 'fastest;{};traffic:{}'.format(
-            params.get('transport', 'car'),
-            params.get('jam', 'disabled')
-        )
-        
-        params['range'] = params.get('range', 600)
-        
-        params['rangetype'] = params.get('units', 'time')
-        
-        params['app_id'] = self.app_id
-        
-        params['app_code'] = self.app_code
 
-        return self._request(url, point, params)
-    
+        request_params = {}
+
+        request_params['start'] = 'geo!{1},{0}'.format(point['lon'], point['lat'])
+
+        request_params['mode'] = params.get('mode', 'fastest;car;traffic:disabled')
+
+        request_params['range'] = params.get('range', 600)
+
+        request_params['rangetype'] = params.get('rangetype', 'time')
+
+        request_params['app_id'] = self.app_id
+
+        request_params['app_code'] = self.app_code
+
+        return self._request(url, point, request_params)
+
     @staticmethod
     def catchment_as_geojson(catchment):
         """Processing catchment to GeoJSON format.
 
         :param catchment (dictionary)
-    
+
         Returns:
             GeoJSON polygon feature if successful, None otherwise.
         """
@@ -83,7 +82,7 @@ class HereAPI(object):
             shape = catchment['response']['isoline'][0]['component'][0]['shape']
         except KeyError:
             return None
-        
+
         coords = []
         for coord in shape:
             lat_lon = coord.split(',')
@@ -99,7 +98,7 @@ class HereAPI(object):
         geojson['properties']['name'] = catchment['name']
 
         return geojson
-    
+
     @staticmethod
     def save_as_geojson(geojson, save_in=None):
         """Save GeoJSON feature to *.geojson file.
@@ -107,14 +106,14 @@ class HereAPI(object):
         :param geojson (dictionary - GeoJSON feature)
 
         :param save_in (path)
-    
+
         Returns:
            File with GeoJSON feature
            path_to_save: saved *.geojson file path
         """
 
         name = 'HERE_{}.geojson'.format(geojson['properties']['name'])
-        
+
         if save_in:
             path_to_save = os.path.join(save_in, name)
         else:

@@ -35,9 +35,9 @@ class SkobblerAPI(object):
         :param params (**dictionary):
                 supported keys:
                     transport, range, units, toll, highways, non_reachable, jam
-            
+
         If optional params won't be supplied, default values will be used.
-    
+
         Returns:
             API response if successful, None otherwise.
         """
@@ -46,30 +46,32 @@ class SkobblerAPI(object):
             self.api_key, self.api_key
         )
 
-        params['start'] = '{1},{0}'.format(point['lon'], point['lat'])
-        
-        params['transport'] = params.get('transport', 'car')
-        
-        params['range'] = params.get('range', 600)
-        
-        params['units'] = params.get('units', 'sec')
-        
-        params['toll'] = params.get('toll', 1)
-        
-        params['highways'] = params.get('highways', 1)
-        
-        params['nonReachable'] = params.get('non_reachable', 0)
-        
-        params['response_type'] = 'gps'
+        request_params = {}
 
-        return self._request(url, point, params)
-    
+        request_params['start'] = '{1},{0}'.format(point['lon'], point['lat'])
+
+        request_params['transport'] = params.get('transport', 'car')
+
+        request_params['range'] = params.get('range', 600)
+
+        request_params['units'] = params.get('units', 'sec')
+
+        request_params['toll'] = params.get('toll', 0)
+
+        request_params['highways'] = params.get('highways', 0)
+
+        request_params['nonReachable'] = params.get('non_reachable', 0)
+
+        request_params['response_type'] = 'gps'
+
+        return self._request(url, point, request_params)
+
     @staticmethod
     def catchment_as_geojson(catchment):
         """Processing catchment to GeoJSON format.
 
         :param catchment (dictionary)
-    
+
         Returns:
             GeoJSON polygon feature if successful, None otherwise.
         """
@@ -87,7 +89,7 @@ class SkobblerAPI(object):
             bbox = catchment['realReach']['gpsBBox']
         except KeyError:
             return None
-        
+
         for i, coord in enumerate(coords):
             if (i % 2 == 0):
                 if not (coord < bbox[0] or coord > bbox[2]):
@@ -100,7 +102,7 @@ class SkobblerAPI(object):
         )
         geojson['properties']['name'] = catchment['name']
         return geojson
-    
+
     @staticmethod
     def save_as_geojson(geojson, save_in=None):
         """Save GeoJSON feature to *.geojson file.
@@ -108,14 +110,14 @@ class SkobblerAPI(object):
         :param geojson (dictionary - GeoJSON feature)
 
         :param save_in (path)
-    
+
         Returns:
            File with GeoJSON feature
            path_to_save: saved *.geojson file path
         """
 
         name = 'SKOBBLER_{}.geojson'.format(geojson['properties']['name'])
-        
+
         if save_in:
             path_to_save = os.path.join(save_in, name)
         else:
