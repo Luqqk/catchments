@@ -3,6 +3,12 @@
 Release History
 ---------------
 
+1.0.0 (2017-05-01)
+++++++++++++++++++
+
+* Bug fixes, code reorganization
+* Better documentation
+
 0.9.1b (2017-03-11)
 +++++++++++++++++++
 
