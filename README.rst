@@ -57,37 +57,47 @@ Example \*.csv file structure (name column is optional):
 
 All supported options for command line script are mentioned below:
 
-* api [required] - default value is **None**. You can choose from **SKOBBLER** and **HERE**.
+* api [required] - default value is **None**. You can choose from **SKOBBLER** and **HERE**
 
-* key [required] - defualt value is **None**.
+* key [required] - default value is **None**
+    
     * SKOBBLER - "your_api_key"
     * HERE - "app_id,app_code"
 
 * points [required] - default value is **None**. Path to \*.csv file with points.
 
-* range - default value is **600**
+* range - default value is:
+
+    * SKOBBLER **600**
+    * HERE **600**
 
 * units - default value is:
+
     * SKOBBLER **sec**
     * HERE (rangetype) **time**
 
 * transport - default value is:
+
     * SKOBBLER **car**
     * HERE **car**
 
 * jam - default value is:
+
     * SKOBBLER not supported
     * HERE **disabled**
 
 * toll - default value is (currently not supported by catchments-cls.py):
+
     * SKOBBLER 1
     * HERE not supported
 
 * highways - default value is (currently not supported by catchments-cls.py):
+
     * SKOBBLER 1
     * HERE not supported
 
 * non_reachable - default value is (currently not supported by catchments-cls.py):
+
     * SKOBBLER 1
     * HERE not supported
 
