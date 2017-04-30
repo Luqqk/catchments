@@ -4,13 +4,10 @@
 .. image:: https://coveralls.io/repos/github/Luqqk/catchments/badge.svg
     :target: https://coveralls.io/github/Luqqk/catchments
 
-.. image:: https://lima.codeclimate.com/github/Luqqk/catchments/badges/gpa.svg?output=embed
-   :target: https://lima.codeclimate.com/github/Luqqk/catchments
-
 🌍 catchments
 =============
 
-Simple package for acquiring and manipulating catchments from SKOBBLER (Real Reach) and HERE (Isolines) API.
+Python wrapper for SKOBBLER RealReach and HERE Isolines API. It allows to acquire and manipulate catchments from those APIs.
 
 Installation
 ------------
@@ -22,23 +19,27 @@ Installation
 Usage
 -----
 
-You can use package functions to build Your own scripts:
-
 .. code-block:: python
 
-    >>> from catchments import request_catchment, catchment_as_geojson, \
-            save_as_geojson
+    >>> from catchments import SkobblerAPI, HereAPI
 
-    >>> # Get catchment from API
-    >>> params = {'api': 'SKOBBLER', 'key': 'your_api_key'}
-    >>> catchment = request_catchment({'lat' 52.05, 'lon': 16.82}, **params)
+    >>> # get catchment from Skobbler API
+    >>> skobbler = SkobblerAPI('your_api_key')
+    >>> params = {"range": 600, "highways": 0}
+    >>> catchment = skobbler.get_catchment({'lat' 52.05, 'lon': 16.82}, **params)
     >>> {"realReach": {...} ...}
-    >>> geojson = catchment_as_geojson(catchment, **params)
+    >>> geojson = skobbler.catchment_as_geojson(catchment)
     >>> {"type": "Feature", geometry: {"type": "Polygon", ...}, ...}
-    >>> save_as_geojson(geojson, **params)
+    >>> skobbler.save_as_geojson(geojson)
     >>> 'SKOBBLER_52.05_16.82.geojson'
 
-Or You can use inbuilt command line script which accepts \*.csv file input with points as coordinates resource.
+Params supported by SKOBBLER and HERE:
+
+`Skobbler RealReach API params <https://developer.skobbler.com/getting-started/web#sec3>`_
+
+`HERE Isoline API params <https://developer.here.com/rest-apis/documentation/routing/topics/request-isoline.html>`_
+
+Or You can use inbuilt command line script which accepts \*.csv file input with points as coordinates resource. It generates \*.geojson files for every point in given \*.csv file.
 
 Example \*.csv file structure (name column is optional):
 
@@ -54,34 +55,41 @@ Example \*.csv file structure (name column is optional):
 
     $ catchments-cls.py -a SKOBBLER -k your_api_key -p path/to/file/with/points/*.csv
 
-All supported options for command line script and package functions are mentioned below:
+All supported options for command line script are mentioned below:
 
-+-----------------+------------+---------------------------------------------------+ 
-|    param        |required    |   default value                                   | 
-+=================+============+===================================================+
-|   api           |    Yes     |  **None**                                         | 
-+-----------------+------------+---------------------------------------------------+ 
-|   key           |    Yes     |  **None**                                         | 
-+-----------------+------------+---------------------------------------------------+ 
-|   points        |    Yes     |  **None** (required only by catchments-cls.py)    | 
-+-----------------+------------+---------------------------------------------------+ 
-|   range         |    No      |  **600**                                          | 
-+-----------------+------------+---------------------------------------------------+ 
-|   units         |    No      |  **sec** (SKOBBLER) **time** (HERE)               | 
-+-----------------+------------+---------------------------------------------------+ 
-|   transport     |    No      |  **car**                                          | 
-+-----------------+------------+---------------------------------------------------+ 
-|   jam           |    No      |  **disabled** (HERE API only)                     | 
-+-----------------+------------+---------------------------------------------------+ 
-|   toll          |    No      |  **1** (SKOBBLER API only)                        | 
-|                 |            |  - currently not supported by catchments-cls.py   | 
-+-----------------+------------+---------------------------------------------------+
-|   highways      |    No      |  **1** (SKOBBLER API only)                        | 
-|                 |            |  - currently not supported by catchments-cls.py   | 
-+-----------------+------------+---------------------------------------------------+ 
-|   non_reachable |    No      |  **1** (SKOBBLER API only)                        | 
-|                 |            |  - currently not supported by catchments-cls.py   | 
-+-----------------+------------+---------------------------------------------------+  
+* api [required] - default value is **None**. You can choose from **SKOBBLER** and **HERE**.
+
+* key [required] - defualt value is **None**.
+    * SKOBBLER - "your_api_key"
+    * HERE - "app_id,app_code"
+
+* points [required] - default value is **None**. Path to \*.csv file with points.
+
+* range - default value is **600**
+
+* units - default value is:
+    * SKOBBLER **sec**
+    * HERE (rangetype) **time**
+
+* transport - default value is:
+    * SKOBBLER **car**
+    * HERE **car**
+
+* jam - default value is:
+    * SKOBBLER not supported
+    * HERE **disabled**
+
+* toll - default value is (currently not supported by catchments-cls.py):
+    * SKOBBLER 1
+    * HERE not supported
+
+* highways - default value is (currently not supported by catchments-cls.py):
+    * SKOBBLER 1
+    * HERE not supported
+
+* non_reachable - default value is (currently not supported by catchments-cls.py):
+    * SKOBBLER 1
+    * HERE not supported
 
 Tests
 -----
@@ -93,5 +101,4 @@ Tests
 TODO
 ------
 
-* Refactor cyclomatic complexity (11) for catchment_as_geojson function
 * Add support for Mapzen API catchments

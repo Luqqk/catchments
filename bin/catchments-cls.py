@@ -28,7 +28,9 @@ def main():
     if params['api'] == 'SKOBBLER':
         api_provider = SkobblerAPI(params['key'])
     else:
-        api_provider = HereAPI(params['key'])
+        app_id = params['key'].split(',')[0]
+        app_code = params['key'].split(',')[1]
+        api_provider = HereAPI(app_id, app_code)
 
     file = open(params['points'])
 
