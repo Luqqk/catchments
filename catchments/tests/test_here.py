@@ -1,6 +1,5 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock
-from optparse import OptionParser
 from io import StringIO
 from tempfile import mkdtemp
 from shutil import rmtree

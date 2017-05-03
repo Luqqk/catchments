@@ -50,7 +50,7 @@ class HereAPI(object):
 
         request_params['mode'] = params.get('mode', 'fastest;car;traffic:disabled')
 
-        request_params['range'] = params.get('range', 600)
+        request_params['range'] = params.get('range', '600')
 
         request_params['rangetype'] = params.get('rangetype', 'time')
 

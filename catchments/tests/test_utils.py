@@ -1,13 +1,9 @@
 from unittest import TestCase
-from unittest.mock import patch, Mock
-from optparse import OptionParser
 from io import StringIO
 from tempfile import mkdtemp
 from shutil import rmtree
-from catchments.utils import create_parser, load_input_data
-import os
+from catchments.utils import load_input_data
 import csv
-import requests
 # csv.OrderedDict is supported only in Python > 3.6
 # collections.OrderedDict for backward compatibility (Python < 3.6)
 import collections
@@ -17,13 +13,6 @@ import collections
 # coverage run --branch --source=catchments/ setup.py test
 # To check coverage report (with missing lines)
 # coverage report -m
-
-
-class TestParser(TestCase):
-
-    def test_parser_creation(self):
-        parser = create_parser()
-        self.assertTrue(isinstance(parser, OptionParser))
 
 
 class TestLoadInputData(TestCase):

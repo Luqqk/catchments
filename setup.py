@@ -9,11 +9,11 @@ with open('HISTORY.rst') as f:
 
 setup(
     name='catchments',
-    version='1.0.0',
-    description='A simple package for acquiring and manipulating catchments from Skobbler and Here API',
+    version='1.1.0',
+    description='Python wrapper for multiple APIs, that provide catchments-areas',
     long_description=readme + '\n\n' + history,
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3 :: Only',
         'Topic :: Scientific/Engineering :: GIS',
@@ -29,7 +29,7 @@ setup(
     ],
     zip_safe=False,
     include_package_data=True,
-    scripts=['bin/catchments-cls.py'],
+    scripts=['bin/catchments-skobbler.py', 'bin/catchments-here.py'],
     test_suite='nose.collector',
     tests_require=['nose', 'requests']
 )
