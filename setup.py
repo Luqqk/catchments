@@ -9,7 +9,7 @@ with open('HISTORY.rst') as f:
 
 setup(
     name='catchments',
-    version='1.1.0',
+    version='1.1.1',
     description='Python wrapper for multiple APIs, that provide catchments-areas',
     long_description=readme + '\n\n' + history,
     classifiers=[
