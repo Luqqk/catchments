@@ -3,6 +3,12 @@
 Release History
 ---------------
 
+1.1.0 (2017-05-04)
+++++++++++++++++++
+
+* Split catchments-cls.py into separate scripts (one for each API)
+* Documentation
+
 1.0.0 (2017-05-01)
 ++++++++++++++++++
 
