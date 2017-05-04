@@ -9,6 +9,8 @@
 
 Python wrapper for multiple APIs, that provide catchments-areas.
 It allows to acquire and manipulate catchments from those APIs.
+It can help you answer the questions like: "Where can I get in 30 min from that point?"
+taking into account e.g. real traffic, transport type, specified range. 
 
 .. image:: img/catchments.png
     :height: 400px
