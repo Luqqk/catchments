@@ -28,7 +28,7 @@ Installation
 Usage
 -----
 
-Currently there are implemented two classes: **SkobblerAPI** and **HereAPI**.
+Currently there are implemented two classes: **SkobblerAPI("api_key")** and **HereAPI("app_id", "app_code")**.
 
 You can use them as follows:
 
@@ -45,12 +45,12 @@ You can use them as follows:
     >>> geojson = skobbler.catchment_as_geojson(catchment)
     >>> {"type": "Feature", geometry: {"type": "Polygon", ...}, ...}
     >>> skobbler.save_as_geojson(geojson)
-    >>> 'SKOBBLER_52.05_16.82.geojson'
+    >>> 'SKOBBLER_52.40_16.93.geojson'
 
 As you can see **.get_catchment** method uses **params** as second argument. Params keys names should be exactly the same
 as mentioned in APIs documentations, otherwise they will be ignored and default values will be used.
 
-Params supported by SKOBBLER and HERE:
+Params supported by **SKOBBLER** and **HERE**:
 
 `SKOBBLER <https://developer.skobbler.com/getting-started/web#sec3>`_ (startMercator, response_type - not supported)
 
