@@ -96,11 +96,13 @@ class SkobblerAPI(object):
                     geojson['geometry']['coordinates'][0].append(
                         [coord, coords[i + 1]]
                     )
+
         # Close GeoJSON polygon
         geojson['geometry']['coordinates'][0].append(
             geojson['geometry']['coordinates'][0][0]
         )
         geojson['properties']['name'] = catchment['name']
+
         return geojson
 
     @staticmethod

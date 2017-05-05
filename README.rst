@@ -40,7 +40,7 @@ You can use them as follows:
     >>> skobbler = SkobblerAPI('your_api_key')
     >>> # if you don't provide params values default ones will be used
     >>> params = {"range": 600, "highways": 1}
-    >>> catchment = skobbler.get_catchment({"lat" 52.05, "lon": 16.82}, **params)
+    >>> catchment = skobbler.get_catchment({"lat": 52.40, "lon": 16.93}, **params)
     >>> {"realReach": {...} ...}
     >>> geojson = skobbler.catchment_as_geojson(catchment)
     >>> {"type": "Feature", geometry: {"type": "Polygon", ...}, ...}
