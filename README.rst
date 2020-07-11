@@ -7,6 +7,8 @@
 🌍 catchments
 =============
 
+**WARNING: The project has reached a stable, usable state but is no longer being actively developed; the author have ceased all work on it.**
+
 Python wrapper for multiple APIs, that provide catchments-areas.
 It allows to acquire and manipulate catchments from those APIs.
 It can help you answer the questions like: "Where can I get in 30 min from that point?"
@@ -117,10 +119,3 @@ Tests
 .. code-block:: bash
 
     $ python setup.py test
-
-TODO
-----
-
-* Add support for Mapzen API catchments
-* Add support for OpenRouteService catchments
-* Add support for concurrent HTTP requests
